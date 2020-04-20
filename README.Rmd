@@ -23,6 +23,7 @@ Dette er kursmateriale for kurset Bibliometri for latsabber. Her finner du inter
 Den enkleste måten å komme igang med kurset er å åpne kursmappa i RStudio og så trykke 'Run Document'. Alt du trenger å gjøre er å kjøre følgende, og så følge instruksjonene:
 
 ```{r, echo = TRUE, eval = FALSE}
+install.packages("learnr")
 usethis::use_course("henrikkarlstrom/latsabber")
 ```
 

@@ -14,6 +14,7 @@ RStudio og så trykke ‘Run Document’. Alt du trenger å gjøre er å kjøre
 følgende, og så følge instruksjonene:
 
 ``` r
+install.packages("learnr")
 usethis::use_course("henrikkarlstrom/latsabber")
 ```
 
