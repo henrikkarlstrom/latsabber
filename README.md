@@ -17,4 +17,13 @@ følgende, og så følge instruksjonene:
 usethis::use_course("henrikkarlstrom/latsabber")
 ```
 
-Da vil du få opp følgende:
+Dette skjer:
+
+![](inst/images/install.gif)
+
+Dette åpner et nytt prosjekt i RStudio. Du finner kursmodulen du
+(kanskje) er interessert i Files-panelet i RStudio, under inst \>
+tutorials \> modul\[nummer\] \> modul\[nummer\].Rmd. Åpne denne fila, og
+trykk “Run Document” på toppen, og kurset vil starte opp. Jeg anbefaler
+å også trykke på “Run in Browser” når kurset åpner, men her er det
+fritt valg…
