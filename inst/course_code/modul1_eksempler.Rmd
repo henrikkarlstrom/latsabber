@@ -21,19 +21,21 @@ funksjon_eksempel <- function(streng){
     replacement = "j"
     )
 }
+
+load("C:/Users/karls/Desktop/R/latsabber/data/oa_data.rda")
 ```
 
 ## Objekter
 
 Anonymt objekt:
 
-```{r}
+```{r, echo=TRUE}
 "Henrik"
 ```
 
 Objekt med et navn:
 
-```{r}
+```{r, echo=TRUE}
 kursholder <- "Henrik"
 
 kursholder
@@ -47,14 +49,14 @@ kursholder
 
 En funksjon tar et objekt, gjør noe med det, og leverer det tilbake:
 
-```{r}
+```{r, echo=TRUE}
 funksjon_eksempel(kursholder)
 ```
 
 
 Funksjoner er også objekter:
 
-```{r}
+```{r, echo=TRUE}
 funksjon_eksempel
 ```
 
@@ -69,14 +71,14 @@ Gruppe objekter av samme klasse.
 
 Vektor av tall:
 
-```{r}
+```{r, echo=TRUE}
 tall <- c(1, 2, 3)
 ```
 
 
 Vektor av tekststrenger:
 
-```{r}
+```{r, echo=TRUE}
 navn <- c("Anne", "Bjørn")
 
 ```
@@ -84,14 +86,17 @@ navn <- c("Anne", "Bjørn")
 
 Man kan sjekke klassen:
 
-```{r}
+```{r, echo=TRUE}
+
 class(tall)
 class(navn)
+
 ```
 
 
 Hva kan vi gjøre med en vektor:
-```{r}
+
+```{r, echo=TRUE}
 
 navn[2]
 
@@ -104,7 +109,8 @@ funksjon_eksempel(navn)
 ```
 
 Klasser kan tvinges ned til et minste felles multiplum, tekst:
-```{r}
+
+```{r, echo=TRUE}
 minste_felles <- c(100, "UiT", NA, TRUE)
 class(minste_felles)
 ```
@@ -116,6 +122,7 @@ Tabellformatet som er innebygd i R:
 
 
 ```{r}
-
+data(oa_data) %>%
+  View()
 ```
 
