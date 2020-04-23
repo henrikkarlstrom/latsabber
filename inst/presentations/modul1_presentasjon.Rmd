@@ -1,0 +1,233 @@
+---
+title: "Bibliometri for latsabber"
+subtitle: "Modul 1"
+author: ""
+date: "`r format(Sys.Date(), format = '%d.%m.%Y')`"
+output: 
+  xaringan::moon_reader:
+    lib_dir: libs
+    css: ["ntnu_slides.css"]
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(gt)
+```
+
+class: inverse, middle, right
+
+> "All individuell og kollektiv ulykke skyldes menneskets begjær etter arbeid" 
+> 
+> Paul La Fargue, **Retten til dovenskap**
+
+---
+
+
+class: middle, center
+
+# Om kurset
+
+---
+
+## Kursplan
+
+```{r program, echo = FALSE}
+  
+kursplan <- tibble::tibble(
+  Tema = c(
+    "R og RStudio",
+    "Ryddige data",
+    "Jobbe med datasett",
+    "Data fra mange kilder",
+    "Visualisere",
+    "Organisere og rapportere"
+    ),
+  Dato = as.Date(
+    c(
+      "2020-04-23",
+      "2020-04-30",
+      "2020-05-07",
+      "2020-05-14",
+      "2020-05-28",
+      "2020-06-04")
+    )
+  ) %>%
+  gt() %>%
+  tab_header(
+    title = "Bibliometri for latsabber",
+    subtitle = "Kursprogram"
+  ) %>%
+  fmt_date(
+    columns = vars(Dato),
+    date_style = 8
+  ) %>%
+  cols_align(
+    align = "right",
+    columns = vars(Dato)
+  ) %>%
+  tab_footnote(
+    footnote = "Kan endres etter kursholders forgodtbefinnende",
+    locations = cells_title("subtitle")
+  ) %>%
+  tab_style(
+    style = cell_text(weight = "bold"),
+    locations = cells_column_labels(columns = vars(Tema, Dato))
+  ) %>%
+  tab_options(
+    table.width = 600,
+    table.font.color = "#eee5d5",
+    table.background.color = "#575756",
+    table.font.size = "1.2em",
+    table.border.bottom.color = "#eee5d5",
+    table.border.top.color = "#eee5d5",
+    table_body.hlines.style = "none",
+    footnotes.font.size = "0.8em"
+  )
+  
+as_raw_html(kursplan)
+```
+
+---
+
+## Hva skal vi lære?
+
+--
+
+### Å begynne å **tenke** programmatisk
+
+--
+
+Samlinger, ikke enkeltelementer
+
+--
+
+Oppskrifter, ikke ingredienser
+
+--
+
+### Verktøyene i `tidyverse`-verktøykassa
+
+--
+
+Importere, rydde, analysere, visualisere, rapportere
+
+--
+
+### Bruke andres arbeid
+
+--
+
+Skript og deling av kode
+
+---
+
+class: center, middle
+
+# Hvorfor programmering?
+
+---
+
+## Arbeidsflyt
+
+--
+
+### Reproduserbarhet
+
+Det du gjør skal se likt ut andre gangen du gjør det
+
+--
+
+### Modularitet
+
+Det meste kan brytes opp i mindre bestanddeler
+
+--
+
+### Robusthet
+
+Mindre personavhengig
+
+---
+
+## Gjenbruk
+
+--
+
+### Samarbeid
+
+Det én gjør kan andre nyte godt av
+
+--
+
+### Effektiv kommunikasjon
+
+Fullt og helt, ikke stykkevis og delt
+
+---
+
+## Dataflyt
+
+--
+
+### Gode prinsipper for datahåndtering
+
+Standardisert måte å snakke om verden på
+
+--
+
+### Orden i eget hus
+
+I tråd med nye nasjonale mål for kunnskapssektoren
+
+---
+
+## Noen utfordringer
+
+--
+
+### Tilvenning
+
+Programmering er abstrakt, og tar tid å lære seg
+
+--
+
+### Verdt det?
+
+Bare hvis det blir tatt i bruk...
+
+---
+
+## Hvorfor R?
+
+--
+
+### Skreddersydd for data
+
+--
+
+### Begynnervennlig
+
+--
+
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+Det Henrik kan...
+
+
+---
+
+class: inverse, middle, right
+
+> "You can't do data science in a GUI."
+>
+> Hadley Wickham, [ACM Chicago 2018](https://www.youtube.com/watch?v=PURtmHwk_-0)
+
+
