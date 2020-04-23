@@ -1,0 +1,121 @@
+---
+title: "Modul 1"
+description: |
+  Eksempler underveis i kurset Bibliometri for latsabber
+author:
+  - name: Henrik Karlstrøm 
+    url: https://www.ntnu.no/ansatte/henrik.karlstrom
+    affiliation: NTNU
+date: "`r Sys.Date()`"
+output: distill::distill_article
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+library(tidyverse)
+
+funksjon_eksempel <- function(streng){
+  str_replace(
+    string = streng, 
+    pattern = "r",
+    replacement = "j"
+    )
+}
+```
+
+## Objekter
+
+Anonymt objekt:
+
+```{r}
+"Henrik"
+```
+
+Objekt med et navn:
+
+```{r}
+kursholder <- "Henrik"
+
+kursholder
+```
+
+
+
+
+## Funksjoner
+
+
+En funksjon tar et objekt, gjør noe med det, og leverer det tilbake:
+
+```{r}
+funksjon_eksempel(kursholder)
+```
+
+
+Funksjoner er også objekter:
+
+```{r}
+funksjon_eksempel
+```
+
+
+## Typer
+
+
+### Vektorer
+
+Gruppe objekter av samme klasse.
+
+
+Vektor av tall:
+
+```{r}
+tall <- c(1, 2, 3)
+```
+
+
+Vektor av tekststrenger:
+
+```{r}
+navn <- c("Anne", "Bjørn")
+
+```
+
+
+Man kan sjekke klassen:
+
+```{r}
+class(tall)
+class(navn)
+```
+
+
+Hva kan vi gjøre med en vektor:
+```{r}
+
+navn[2]
+
+mean(tall)
+mean(navn)
+
+nchar(tall)
+funksjon_eksempel(tall)
+funksjon_eksempel(navn)
+```
+
+Klasser kan tvinges ned til et minste felles multiplum, tekst:
+```{r}
+minste_felles <- c(100, "UiT", NA, TRUE)
+class(minste_felles)
+```
+
+
+### Datarammer
+
+Tabellformatet som er innebygd i R:
+
+
+```{r}
+
+```
+

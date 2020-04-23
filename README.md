@@ -31,3 +31,20 @@ trykk “Run Document” på toppen, og kurset vil starte opp:
 
 Jeg anbefaler å også trykke på “Open in Browser” når kurset åpner, men
 her er det fritt valg…
+
+## Presentasjoner
+
+Alle presentasjonene som blir gitt under kurset blir lagt ut her. Du
+finner dem under inst \> presentations. Hver presentasjon er en
+RMarkdown-fil (.Rmd). Hvis du har lyst til å se dem eller følge med
+underveis i kurset kan du åpne \[modulnummer\]-presentasjon.Rmd og
+trykke Knit på toppen.
+
+## Skript
+
+All koden som blir behandlet under kurset ligger under inst \>
+course\_code \> modul\[modulnummer\]\_eksempler.Rmd
+
+## Data
+
+Data som brukes under kurset ligger i data-mappa
