@@ -337,6 +337,8 @@ quiz(
 )
 ```
 
-## Ferdig!
+## Videoopptak fra første kursdag
 
-Dett var dett for denne gang. Nye spennende eventyr venter i neste oppgavesamling...
+Her er opptaket fra første dag av nettkurset, holdt 23.04.2020.
+
+<iframe src="https://dlr.unit.no/content/94602a68-76ee-4ded-baac-8faf7cd0c5e4?showNewVersion=true&showLicense=true&width=640&height=360" width="640px" height="360px" style="border: none;" mozallowfullscreen="true" webkitallowfullscreen="true" allowfullscreen="true"></iframe>

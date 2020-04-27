@@ -22,7 +22,7 @@ funksjon_eksempel <- function(streng){
     )
 }
 
-load("C:/Users/karls/Desktop/R/latsabber/data/oa_data.rda")
+
 ```
 
 ## Objekter
@@ -60,6 +60,10 @@ Funksjoner er også objekter:
 funksjon_eksempel
 ```
 
+```{r}
+funksjon_eksempel("Bjørnar")
+```
+
 
 ## Typer
 
@@ -73,6 +77,8 @@ Vektor av tall:
 
 ```{r, echo=TRUE}
 tall <- c(1, 2, 3)
+
+tall
 ```
 
 
@@ -80,6 +86,8 @@ Vektor av tekststrenger:
 
 ```{r, echo=TRUE}
 navn <- c("Anne", "Bjørn")
+
+navn
 
 ```
 
@@ -89,6 +97,7 @@ Man kan sjekke klassen:
 ```{r, echo=TRUE}
 
 class(tall)
+
 class(navn)
 
 ```
@@ -100,10 +109,17 @@ Hva kan vi gjøre med en vektor:
 
 navn[2]
 
+
+mange_tall <- c(1:10000)
+mange_tall
+mean(mange_tall)
+
 mean(tall)
 mean(navn)
 
 nchar(tall)
+nchar(navn)
+
 funksjon_eksempel(tall)
 funksjon_eksempel(navn)
 ```
@@ -112,17 +128,27 @@ Klasser kan tvinges ned til et minste felles multiplum, tekst:
 
 ```{r, echo=TRUE}
 minste_felles <- c(100, "UiT", NA, TRUE)
+minste_felles
 class(minste_felles)
 ```
 
 
 ### Datarammer
 
+
 Tabellformatet som er innebygd i R:
 
-
 ```{r}
-data(oa_data) %>%
+oa_data %>%
   View()
+
+mean(oa_data$publikasjoner)
+
+oa_data %>%
+  filter(institusjon == "Arkitektur- og designhøgskolen i Oslo") %>%
+  group_by(kvalitetsniva) %>%
+  summarise(
+    publikasjoner = sum(publikasjoner)
+    )
 ```
 
