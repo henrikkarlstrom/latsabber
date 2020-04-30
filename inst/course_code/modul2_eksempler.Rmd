@@ -29,7 +29,7 @@ La oss se på et eksempel på en analyseoppgave vi kan utføre med verktøy fra 
 ## Oppdrag: OA-kategori
 Vi er interessert i å se på hvor mye av publiseringen til en institusjon som er med lukket tilgang, tilgjengelig gjennom et institusjonelt arkiv (grønn OA), eller med full åpen tilgang hos publiseringskanalen selv (gull eller hybrid OA).
 
-Første steg er å hente ut publikasjonene fra Cristin. Vi nøyer oss med å se på vitenskapelige artikler i denne omgang, og ser på publiseringsår 2017 for å fange opp eventuelle embargorestriksjoner på de arkiverte publikasjonene:
+Første steg er å hente ut publikasjonene fra Cristin. Vi nøyer oss med å se på vitenskapelige artikler i denne omgang:
 
 ```{r cristin_uttrekk, echo = FALSE}
 publikasjoner <- get_cristin_results(
