@@ -33,31 +33,11 @@ Da har vi kommet til modul 3 av kurset, og det er på tide å se mer på hvordan
 
 Svært mye data vi jobber med kommer i form av todimensjonale tabeller - kolonner og rader - og `tidyverse` er bygget rundt dette formatet. I denne modulen skal vi se på hvordan vi i praksis leser inn, manipulerer og eksporterer filer med slike flate datasett.
 
-```{r kviss_1}
-quiz(
-  question_checkbox(
-    text = "Hva er sant om ryddige data?",
-    answer(
-      text = "De har hatt Marie Kondo på besøk",
-      message = "Nei, ryddige data er ikke et tynt kamuflert forsøk på å få deg til å bytte ut tingene dine med ryddeekspertens egne produkter"
-      ),
-    answer(
-      text = "De skiller tydelig mellom variabler, observasjoner og verdier", 
-      correct = TRUE,
-      message = "Ryddige data gjør den underliggende strukturen på data utvetydig."
-      ),
-    allow_retry = TRUE,
-    submit_button = "Prøv lykken",
-    correct = "Ikke verst!",
-    incorrect = "Hmmm..."
-  ),
-  caption = "Kviss"
-)
-```
 
 ## Importere og eksportere data
 
 Som sagt er `tidyverse` bygget rundt todimensjonale data. Disse kommer ofte i form av filer i tabulært format, som må leses inn korrekt for at R skal kunne gi dem riktig dimensjonalitet. `readr::` er `tidyverse`-pakken for import og eksport av tekstfiler i to dimensjoner (andre pakker hjelper oss å håndtere filer med en nøstet tre-struktur, som JSON eller XML).
+
 
 ### Import
 `readr::` har syv innlesingsfunksjoner som alle starter med `read_` og som er optimalisert for å jobbe med filer som deler inn kolonner og rader på forskjellige måter. I realiteten vil du jobbe nesten utelukkende med `read_csv()`, siden .csv er det vanligste filformatet for flate tekstfiler.
@@ -67,7 +47,7 @@ Funksjonene er ment å skulle gjøre mesteparten av jobben for deg. Som en del a
 
 ### Eksport
 
-Som nevnt er .csv det vanligste tabulære formatet. For å eksportere en tibble til .csv bruker du `write_csv()`
+Som nevnt er .csv det vanligste tabulære formatet. For å eksportere en tibble til .csv bruker du `write_csv()`, og gir funksjonen tabellen du vil eksportere og navnet du vil at fila skal ha, og så ordner den resten.
 
 
 ### Filer fra andre analyseprogram
@@ -90,7 +70,12 @@ Funksjonene i `readr::` er laget for å jobbe med flate filer med en enkel struk
 
 Når du installerte `tidyverse` installerte du i samme slengen `readxl::` laget spesielt for å håndtere Excels ekstra krimskrams. `readxl::` blir ikke lastet inn med `library(tidyverse)`, så om du skal importere Excel-filer må du huske å sette `library(readxl)` før du prøver å bruke funksjonene derfra.
 
-`read_excel()` lar deg lese inn .xls- og .xlsx-filer, og du kan spesifisere om det er en annen fane enn den første du er interessert i (for eksempel `read_excel(xlsx_example, sheet = "chickwts")`), eller konkrete kolonner (`read_excel(xlsx_example, range = cell_cols("B:D"))`), rader (`read_excel(xlsx_example, range = cell_rows(1:4))`) eller spesifikke regioner (`read_excel(xlsx_example, range = "C1:E4")`) av Excel-arket.
+`read_excel()` lar deg lese inn .xls- og .xlsx-filer, og det er flere måter du kan spesifisere akkurat det du er interessert i å hente ut: 
+
+- faner velges med "sheet": `read_excel(xlsx_example, sheet = "chickwts")`
+- kolonner velges med "range = cell_cols()": `read_excel(xlsx_example, range = cell_cols("B:D"))` 
+- rader med "range = cell_rows(): `read_excel(xlsx_example, range = cell_rows(1:4))` 
+- spesifikke regioner med "range = [region]": `read_excel(xlsx_example, range = "C1:E4")`
 
 [Dokumentasjonen](https://readxl.tidyverse.org/) inneholder også mer kompliserte eksempler for hvordan du kan lese inn alle fanene i en excel-arbeidsbok samtidig og jobbe med dem som separate tabeller som så kan eksporteres til et mer universelt format.
 
@@ -103,10 +88,10 @@ I `tidyverse` er `dplyr::`-pakken laget for å jobbe med og manipulere tabulære
 2. de som manipulerer kolonner
 3. de som aggregerer og oppsummerer
 
-Hver av disse har 
+Hver av disse har sin logikk, og det skal vi se nærmere på nå.
 
 
-## Rader: `filter()` og `arrange()`
+## Rader
 
 Det er i hovedsak to verb som gjør ting med radene i en tibble. `filter()` lar deg velge rader i tabellen som oppfyller de kriterier du spesifiserer, mens `arrange()` sorterer rader etter verdiene i kolonner du bestemmer.
 
@@ -170,17 +155,215 @@ Det er flere nyttige hjelpefunksjoner som kan hjelpe med å spesifisere akkurat 
 
 ```{r, echo = TRUE}
 oa_data %>%
-  arrange(desc(publikasjoner))
+  arrange(
+    desc(publikasjoner)
+    )
 ```
 
 
-## Kolonner: `select()` og `rename()`
+## Kolonner
+
+Kolonner er ganske smertefritt å jobbe med i `tidyverse`, fordi det går an å referere til dem i ren tekst i stedet for å spesifisere dem med den vanlige kolonnerefereringspraksisen til R. Det vil si, så lenge du har startet med å spesifisere hvilke data du vil jobbe med trenger ikke `tidyverse`-funksjonene å bli fortalt at du jobber med `data$kolonne` (eller `data[["kolonne"]]` eller `data[, "kolonne"]`, ikke spør) hele tida - det holder å skrive hva kolonnen heter.
+
+### Eksempler med `select()`:
+`select()` er funksjonen for å velge ut spesifikke kolonner. Bare gi den navnene på kolonnene du vil ha med videre, og så dropper den de du ikke er interessert i. Dette er spesielt nyttig når datasette har overflødige kolonner som ikke inneholder gruppert informasjon.
+
+Når vi henter data fra Cristin API får vi med rubbel og bit av kolonner. I dette eksempelet er vi bare interessert i ID, originalspråk og kategori fra kursholders Cristinposter:
+
+```{r, echo = TRUE}
+henrik %>%
+  select(
+    cristin_result_id,
+    original_language,
+    category.name.en
+    )
+```
+
+Det fins noen praktiske hjelpefunksjoner for å velge ut kolonner blant mange, så du slipper å skrive det fulle navnet alltid. Her velger vi kolonner som starter med tekststrengen "year":
+
+```{r, echo = TRUE}
+henrik %>%
+  select(starts_with("year"))
+```
+
+Og her kolonner som inneholder "date":
+
+```{r, echo = TRUE}
+henrik %>%
+  select(contains("date"))
+```
+
+Merk at her fikk vi en kolonne som startet med "date", og to som hadde "date" senere i kolonnenavnet.
+
+### Eksempler med `rename()`:
+Ofte kommer datasett med krøkkete kolonnenavn. For eksempel har kolonnene i data lastet ned fra DUCT navn med mellomrom og andre spesialtegn vi ikke liker. Det er enkelt å gi kolonner nytt navn, du bare oppgir [nytt navn] = [gammelt navn] og det er gjort:
+
+```{r, echo = TRUE}
+oa_data %>%
+  rename(
+    ekte_oa = gull_oa,
+    tid = arstall
+    )
+```
+
+Tips: om du jobber med mye data med uhensiktsmessige kolonnenavn fins det en egen pakke med nyttige funksjoner for å rydde i kolonnenavn og Excel-ark med masse tomme kolonner og slikt: `janitor::` ([dokumentasjon](https://garthtarr.github.io/meatR/janitor.html)). Jeg bruker selv `clean_names()` daglig.
 
 
+## Nye verdier
 
-## Nye verdier: `mutate()` og `summarise()`
+Så langt har vi sett på hvordan vi kan operere på verdiene som de kommer når vi importerer datasettet. Det er nyttig, men virkelig interessant blir det ikke før vi kan beregne nye verdier. Til det har vi to funksjoner: `mutate()` beregner nye verdier basert på hele kolonner, mens `summarise()` lager oppsummerende verdier basert på grupper av verdier i andre kolonner.
+
+### Eksempler på `mutate()`:
+
+`mutate()` lager nye kolonner i datasettet ditt basert på logiske betingelser. Dette kan være å fylle inn verdier du selv bestemmer, kondisjonelle verdier, eller numeriske beregninger basert på eksisterende kolonner i datasettet.
+
+Her lager vi en ny kolonne som identifiserer humaniora-publikasjoner:
+
+```{r, echo = TRUE}
+oa_data %>%
+  mutate(
+    humaniora = fag %in% "Humaniora",
+    )
+```
+
+Vi kan bruke `mutate()` til å gjøre endringer på eksisterende kolonner, det er bare å gi den "nye" kolonnen samme navn som den gamle, og så blir det skrevet over. Her fjerner vi teksten fra kvalitetsnivå-verdiene:
+
+```{r, echo = TRUE}
+oa_data %>%
+  mutate(
+    
+    # str_remove() fjerner tekst vi ikke vil ha
+    kvalitetsniva = str_remove(kvalitetsniva, "Nivå ")
+    )
+```
+
+Vi kan gjøre mange operasjoner i samme kall til `mutate()`. I det følgende gjør vi først to tekstkolonner til tall og beregner så tidsforskjellen på når publikasjoner ble rapportert og når de ble publisert for publikasjonene til Høgskulen på Vestlandet i perioden 2015 til i dag:
+
+```{r, echo = TRUE}
+hvl %>%
+  mutate(
+    year_published = as.numeric(year_published),
+    year_reported = as.numeric(year_reported),
+    tidsdiff = year_published - year_reported
+    )
+```
+
+Legg merke til at de nye kolonnene vi lager umiddelbart blir tilgjengelig for alle `tidyverse`-funksjoner (dette er en av de nyttige tingene med hele -verset) - med en gang de to tekstkolonnene ble konvertert kunne de brukes på linja under til å gjøre en numerisk operasjon. Hele resultatet kan sendes rett inn i andre funksjoner også. Her identifiserer vi en artikkel som ble registrert i Cristin i 2012, men ikke publisert før i 2015:
+
+```{r, echo = TRUE}
+hvl %>%
+  mutate(
+    year_published = as.numeric(year_published),
+    year_reported = as.numeric(year_reported),
+    tidsdiff = year_published - year_reported
+    ) %>%
+  filter(tidsdiff == 3)
+```
 
 
+### Eksempler med `summarise()`:
 
-## Dreie data: `pivot_longer()` og `pivot_wider()`
+`summarise()` er en slags spesialisert `mutate()`. Den kalkulerer oppsummerende verdier etter dine spesifikasjoner. Om vi skal fortsette eksempelet fra over kan vi i stedet for å filtrere ut rader med med en enkelt operasjon beregne snittet av den nye kolonnen vi skapte:
+
+```{r, echo = TRUE}
+hvl %>%
+  mutate(
+    year_published = as.numeric(year_published),
+    year_reported = as.numeric(year_reported),
+    tidsdiff = year_published - year_reported
+    ) %>%
+  summarise(
+    snitt_tidsdiff = mean(tidsdiff, na.rm = TRUE)
+    )
+```
+
+Vi kan lage flere oppsummerende tall i samme operasjon:
+
+```{r, echo = TRUE}
+hvl %>%
+  mutate(
+    year_published = as.numeric(year_published),
+    year_reported = as.numeric(year_reported),
+    journal.nvi_level = as.numeric(journal.nvi_level),
+    tidsdiff = year_published - year_reported
+    ) %>%
+  summarise(
+    snitt_tidsdiff = mean(tidsdiff, na.rm = TRUE),
+    snitt_kvalitet = mean(journal.nvi_level, na.rm = TRUE),
+    antall = n()
+    )
+```
+
+`summarise()` på et helt datasett er greit nok, men det skinner virkelig når vi ønsker å lage oppsummeringer av grupper av verdier i datasettene. Til det trenger vi først å fortelle hva vi skal gruppere på med `group_by()`-funksjonen.
+
+La oss se hvor mange publikasjoner som er på hvilket nivå for hvert år siden 2011:
+
+```{r, echo = TRUE}
+oa_data %>%
+  group_by(arstall, kvalitetsniva) %>%
+  summarise(
+    niva = sum(publikasjoner)
+    )
+```
+
+Dette kan selvfølgelig sendes videre til andre beregninger. Her bruker vi verdiene vi fikk fra `summarise()` over til å beregne andelen for hvert nivå *innenfor* de gruppene vi har definert:
+
+```{r, echo = TRUE}
+oa_data %>%
+  group_by(arstall, kvalitetsniva) %>%
+  summarise(
+    niva = sum(publikasjoner)
+    ) %>%
+  mutate(
+    andel = niva / sum(niva)
+    ) %>%
+  ungroup()
+```
+
+OBS! Det er lurt å fjerne grupperingen igjen når du er ferdig med operasjonen du ønsket...
+
+
+## Dreie data
+
+I forrige modul lærte vi om ryddige data. Disse har ofte få kolonner, og verdiene i kolonnene kan gjerne være duplisert så lenge hver rad står for en unik kombinasjon av kolonneverdier. Dette er kjent som et "langt" format, og det er nyttig å kunne få data inn i dette formatet etter behov. 
+
+Noen ganger er det hensiktsmessig å dreie data sånn at hver rad tilsvarer én verdi av en bestemt variabel, og da må verdier i et langt format transformeres til data spredt utover flere kolonner. Slike transformasjoner kalles dreiing, og dreiing av data gjør vi med `pivot_longer()` og `pivot_wider()`.
+
+
+### Eksempler med `pivot_longer()`
+
+Denne funksjonen tar verdier fra mange kolonner og konverterer dem til verdier i to nye kolonner, hvor den ene representerer informasjonen som lå i de gamle kolonnenavnene og den andre verdiene i disse kolonnene. For å kunne gjøre dette må vi sende inn kolonnene som skal transformeres, kolonnen som skal inneholde de gamle kolonnenavnene, og kolonnen som skal inneholde de gamle verdiene. 
+
+I det følgende ønsker vi å ta alle kolonnene som gir informasjon om hvilket år forskjellige ting skjedde og legge de inn i to kolonner:
+
+```{r, echo = TRUE}
+hvl %>%
+  pivot_longer(
+    # velg kolonnene vi vil forlenge
+    cols = year_published:year_printed,
+    
+    # de gamle kolonnenavnene skal til
+    names_to = "hendelse",
+    
+    # ta bort det unødvendige prefikset
+    names_prefix = "year_",
+    
+    # de gamle verdiene skal til
+    values_to = "ar"
+  )
+```
+
+
+### Eksempler med `pivot_wider()`
+
+Denne funksjonen gjør det omvendte av ovennevnte. `pivot_wider()` trenger kolonnen som skal "spres" på flere kolonner, og verdiene som skal i de nye kolonnene:
+
+```{r, echo = TRUE}
+oa_data %>%
+  pivot_wider(
+    names_from = fag,
+    values_from = publikasjoner
+      ) %>%
+  View()
+```
 
