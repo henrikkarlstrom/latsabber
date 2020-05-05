@@ -302,7 +302,7 @@ La oss se hvor mange publikasjoner som er på hvilket nivå for hvert år siden 
 oa_data %>%
   group_by(arstall, kvalitetsniva) %>%
   summarise(
-    niva = sum(publikasjoner)
+    antall = sum(publikasjoner)
     )
 ```
 
@@ -312,15 +312,17 @@ Dette kan selvfølgelig sendes videre til andre beregninger. Her bruker vi verdi
 oa_data %>%
   group_by(arstall, kvalitetsniva) %>%
   summarise(
-    niva = sum(publikasjoner)
+    antall = sum(publikasjoner)
     ) %>%
   mutate(
-    andel = niva / sum(niva)
+    andel = antall / sum(antall)
     ) %>%
   ungroup()
 ```
 
-OBS! Det er lurt å fjerne grupperingen igjen når du er ferdig med operasjonen du ønsket...
+Som vi ser summerer andelsverdiene til 1 innenfor hver kombinasjon av år og kvalitetsnivå.
+
+Merk! Det er lurt å fjerne grupperingen igjen når du er ferdig med operasjonen du ønsket...
 
 
 ## Dreie data
@@ -350,7 +352,8 @@ hvl %>%
     
     # de gamle verdiene skal til
     values_to = "ar"
-  )
+  ) %>%
+  select(cristin_result_id, hendelse, ar)
 ```
 
 
@@ -362,8 +365,14 @@ Denne funksjonen gjør det omvendte av ovennevnte. `pivot_wider()` trenger kolon
 oa_data %>%
   pivot_wider(
     names_from = fag,
-    values_from = publikasjoner
+    values_from = publikasjoner,
+    names_prefix = "fag_"
       ) %>%
-  View()
+  select(arstall, institusjon, starts_with("fag_"))
 ```
 
+## Konklusjon
+
+Puh, det var det! Dette kan være mye å ta inn over seg, men dette sitter etter hvert ganske raskt i fingrene. Kan du dette kan du gjøre svært mye nyttig dataanalyse.
+
+Neste modul skal vi lære å slå sammen forskjellige datasett basert på felles verdier i begge settene. Da begynner det virkelig å svinge over ting...
