@@ -1,0 +1,186 @@
+---
+title: "Bibliometri for latsabber"
+subtitle: "Modul 3"
+output: 
+  learnr::tutorial:
+    theme: flatly
+    css: css/ntnu_tutorials.css
+    includes:
+      after_body: footer.html
+runtime: shiny_prerendered
+---
+
+```{r setup, include=FALSE}
+library(learnr)
+knitr::opts_chunk$set(echo = FALSE)
+tutorial_options(
+  exercise.cap = "Kode",
+  exercise.startover = FALSE,
+  exercise.lines = 5
+)
+
+library(tidyverse)
+library(latsabber)
+```
+
+## 
+
+![](images/forside_1.png){width=800px}
+
+## Jobbe med datasett
+
+Da har vi kommet til modul 3 av kurset, og det er på tide å se mer på hvordan vi jobber med datasett og analyser i praksis.
+
+Svært mye data vi jobber med kommer i form av todimensjonale tabeller - kolonner og rader - og `tidyverse` er bygget rundt dette formatet. I denne modulen skal vi se på hvordan vi i praksis leser inn, manipulerer og eksporterer filer med slike flate datasett.
+
+```{r kviss_1}
+quiz(
+  question_checkbox(
+    text = "Hva er sant om ryddige data?",
+    answer(
+      text = "De har hatt Marie Kondo på besøk",
+      message = "Nei, ryddige data er ikke et tynt kamuflert forsøk på å få deg til å bytte ut tingene dine med ryddeekspertens egne produkter"
+      ),
+    answer(
+      text = "De skiller tydelig mellom variabler, observasjoner og verdier", 
+      correct = TRUE,
+      message = "Ryddige data gjør den underliggende strukturen på data utvetydig."
+      ),
+    allow_retry = TRUE,
+    submit_button = "Prøv lykken",
+    correct = "Ikke verst!",
+    incorrect = "Hmmm..."
+  ),
+  caption = "Kviss"
+)
+```
+
+## Importere og eksportere data
+
+Som sagt er `tidyverse` bygget rundt todimensjonale data. Disse kommer ofte i form av filer i tabulært format, som må leses inn korrekt for at R skal kunne gi dem riktig dimensjonalitet. `readr::` er `tidyverse`-pakken for import og eksport av tekstfiler i to dimensjoner (andre pakker hjelper oss å håndtere filer med en nøstet tre-struktur, som JSON eller XML).
+
+### Import
+`readr::` har syv innlesingsfunksjoner som alle starter med `read_` og som er optimalisert for å jobbe med filer som deler inn kolonner og rader på forskjellige måter. I realiteten vil du jobbe nesten utelukkende med `read_csv()`, siden .csv er det vanligste filformatet for flate tekstfiler.
+
+Funksjonene er ment å skulle gjøre mesteparten av jobben for deg. Som en del av innlesingen tar den de første tusen radene av fila og bruker det til å gjette kolonnetypene (om de er tekststrenger, numeriske eller noe annet), men om du har behov for å spesifisere et annet format kan det gjøres med `col_types`-argumentet. Du kan også spesifisere format på enkelte av kolonnene, for eksempel om du vil at datoer skal representeres på en spesifikk måte. [Dokumentasjonen](https://readr.tidyverse.org/articles/readr.html) forteller deg mer om hvordan spesifikasjonen foregår.
+
+
+### Eksport
+
+Som nevnt er .csv det vanligste tabulære formatet. For å eksportere en tibble til .csv bruker du `write_csv()`
+
+
+### Filer fra andre analyseprogram
+
+R er i utgangspunktet format-agnostisk. Det betyr at det kan jobbe med filformater som brukes av andre analyseprogrammer, også de som baserer seg på lukkete standarder. Om du vil jobbe med filer fra SPSS, Stata, SAS eller lignende kommer `tidyverse` med `haven::`-pakken, som konverterer disse filformatene til tibble-formatet. Disse kan derettes eksporteres til et åpent format som alle kan bruke uavhengig av foretrukket analyseprogram. [Dokumentasjonen](https://haven.tidyverse.org/) gir mer informasjon.
+
+
+## Noen ord om Microsoft Excel (tm)
+
+> Some Excel workbooks contain only data and you are tempted to ask “Why, God, why is this data stored in Excel? Why not store this as a series of CSV files?” 
+>
+> [--- `readxl::`-dokumentasjon](https://readxl.tidyverse.org/articles/articles/readxl-workflows.html){style="float:right"}
+
+Funksjonene i `readr::` er laget for å jobbe med flate filer med en enkel struktur (og åpen, ikke-proprietær standard), som .csv- eller .txt-filer. Likevel er det ikke til å komme unna at vi ofte må behandle Excel-filer, som kan ha flere trekk som gjør det vanskelig å jobbe med de vanlige importfunksjonene:
+
+- en mer komplisert struktur (flere faner)
+- celler som ikke er data (informasjon om uttrekksdato, eller copyright-informasjon fra f.eks. forlag)
+- celler som bare *ser ut* som data, men egentlig er formler (det står "=summer(e2:e4)" i cellen, men Excel viser oss "300")
+- ekstra formattering som faktisk er data i seg selv (fargekodinger)
+
+Når du installerte `tidyverse` installerte du i samme slengen `readxl::` laget spesielt for å håndtere Excels ekstra krimskrams. `readxl::` blir ikke lastet inn med `library(tidyverse)`, så om du skal importere Excel-filer må du huske å sette `library(readxl)` før du prøver å bruke funksjonene derfra.
+
+`read_excel()` lar deg lese inn .xls- og .xlsx-filer, og du kan spesifisere om det er en annen fane enn den første du er interessert i (for eksempel `read_excel(xlsx_example, sheet = "chickwts")`), eller konkrete kolonner (`read_excel(xlsx_example, range = cell_cols("B:D"))`), rader (`read_excel(xlsx_example, range = cell_rows(1:4))`) eller spesifikke regioner (`read_excel(xlsx_example, range = "C1:E4")`) av Excel-arket.
+
+[Dokumentasjonen](https://readxl.tidyverse.org/) inneholder også mer kompliserte eksempler for hvordan du kan lese inn alle fanene i en excel-arbeidsbok samtidig og jobbe med dem som separate tabeller som så kan eksporteres til et mer universelt format.
+
+
+## Manipulere data
+
+I `tidyverse` er `dplyr::`-pakken laget for å jobbe med og manipulere tabulære data. Det er en hel hurv med funksjoner som hjelper oss å gjøre det, men de kommer i hovedsak i tre varianter funksjoner: 
+
+1. de som manipulerer rader
+2. de som manipulerer kolonner
+3. de som aggregerer og oppsummerer
+
+Hver av disse har 
+
+
+## Rader: `filter()` og `arrange()`
+
+Det er i hovedsak to verb som gjør ting med radene i en tibble. `filter()` lar deg velge rader i tabellen som oppfyller de kriterier du spesifiserer, mens `arrange()` sorterer rader etter verdiene i kolonner du bestemmer.
+
+### Eksempler på `filter()`:
+
+`filter()` tar imot et datasett (for eksempel fra `%>%`-operatoren) og velger rader etter å ha evaluert en logisk betingelse som du spesifiserer. Her velger vi for eksempel alle rader med Gull OA-publisering i oa-datasettet vårt:
+
+```{r, echo = TRUE}
+oa_data %>%
+  filter(
+    gull_oa == "J"
+    )
+```
+
+Du kan begrense utvalget ytterligere med å sette på flere filtere. Dette viser rader med Gull OA-publisering på nivå 2 innen humaniora siden 2016:
+
+```{r, echo = TRUE}
+oa_data %>%
+  filter(
+    gull_oa == "J",
+    fag == "Humaniora",
+    kvalitetsniva == "Nivå 2",
+    arstall > 2015
+    )
+```
+
+Andre logiske operatorer kan også kombineres, for eksempel om du vil ha rader som *enten* er gull OA *eller* på nivå 2. Da bruker vi `|`:
+
+```{r, echo = TRUE}
+oa_data %>%
+  filter(
+    gull_oa == "J" | kvalitetsniva == "Nivå 2")
+```
+
+En nyttig filter-operator er `%in%`, som lar deg filtrere ut rader som faller innenfor et definert spekter. Her tar vi rader fra bare noen utvalgte institusjoner:
+
+```{r, echo = TRUE}
+oa_data %>%
+  filter(
+    institusjon %in% c(
+      "Handelshøyskolen BI", 
+      "Høgskulen på Vestlandet"
+      )
+    )
+```
+
+Hvis du vil ta bort alle rader hvor det mangler verdier i en spesifikk kolonne kan du bruke hjelpefunksjonen `is.na()`, som sjekker om det er en manglende verdi. `!` foran en verdi negerer verdien, og betyr at dette er en verdi du *ikke* vil ha med videre:
+
+```{r, echo = TRUE}
+oa_data %>%
+  filter(
+    !is.na(fag)
+    )
+```
+
+Det er flere nyttige hjelpefunksjoner som kan hjelpe med å spesifisere akkurat det vi vil ha, for eksempel om du vil ha verdier som ligger på et numerisk spekter (`between()` er din venn). Andre nyttige ting vi ikke skal gå nærmere inn på her er muligheten til å matche delvise verdier, for eksempel alle institusjoner som starter med tekststrengen "Universitetet i". Se [dokumentasjonen](https://dplyr.tidyverse.org/reference/filter.html) for mer.
+
+### Eksempler på `arrange()`:
+
+`arrange()` er en måte å sortere en tibble på visuelt. Du gir den data og sier hvilke kolonner det skal sorteres på, og hvorvidt er stigende eller synkende rekkefølge, og så omorganiserer den radene deretter. Dette gir oss de radene med flest publikasjoner øverst, og en rask indikasjon på hva som er den vanligste kombinasjonen av variabler i datasettet vårt:
+
+```{r, echo = TRUE}
+oa_data %>%
+  arrange(desc(publikasjoner))
+```
+
+
+## Kolonner: `select()` og `rename()`
+
+
+
+## Nye verdier: `mutate()` og `summarise()`
+
+
+
+## Dreie data: `pivot_longer()` og `pivot_wider()`
+
