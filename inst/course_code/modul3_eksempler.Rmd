@@ -1,7 +1,7 @@
 ---
-title: "Eksempel på arbeidsflyt"
+title: "Jobbe med datasett"
 description: |
-  Bibliometri for latsabber: Modul 2
+  Bibliometri for latsabber: Modul 3
 author:
   - name: Henrik Karlstrøm 
     url: https://www.ntnu.no/ansatte/henrik.karlstrom
@@ -11,131 +11,38 @@ output: distill::distill_article
 ---
 
 ```{r setup, include=FALSE}
+
+### OPPSETT ###
 knitr::opts_chunk$set(echo = FALSE)
 
+### Pakkene vi trenger ###
 library(tidyverse)
-library(httr)
-library(jsonlite)
-library(rcristin)
-library(hrbrthemes)
 
-theme_set(theme_ipsum_rc())
 ```
 
-##En arbeidsflyt med `tidyverse`
+## Lese inn filer med read_delim()
 
-La oss se på et eksempel på en analyseoppgave vi kan utføre med verktøy fra `tidyverse`.
+```{r}
+data <- read_delim("https://zenodo.org/record/837902/files/unpaywall_100k.csv.gz", delim = ",")
 
-## Oppdrag: OA-kategori
-Vi er interessert i å se på hvor mye av publiseringen til en institusjon som er med lukket tilgang, tilgjengelig gjennom et institusjonelt arkiv (grønn OA), eller med full åpen tilgang hos publiseringskanalen selv (gull eller hybrid OA).
+data %>%
+  View()
 
-Første steg er å hente ut publikasjonene fra Cristin. Vi nøyer oss med å se på vitenskapelige artikler i denne omgang:
-
-```{r cristin_uttrekk, echo = FALSE}
-publikasjoner <- get_cristin_results(
-  institution = 203,
-  category = "ARTICLE",
-  published_since = 2017,
-  published_before = 2017
-)
-```
-
-Fordi det varierer en god del hvor mye metadata som følger med hver Cristin-post returnerer `get_cristin_results()` en liste med tabeller med Cristin-data:
-
-1. `results`: generell informasjon om hver publikasjon
-2. `funding_sources`: data om prosjektfinansiering
-3. `links`: lenker til arkiv og/eller fulltekst-versjon
-4. `projects`: tilknyttede prosjekter
-5. `journal_id`: identifikatorer
-
-La oss starte med å se på OA-kategoriseringen i `results`-tabellen:
-
-```{r resultater}
-# skille ut results-tabellen
-resultater <- publikasjoner$results
-```
-
-```{r restultat_analyse, eval = FALSE}
-# sjekke oa_status
-resultater %>%
-  count(open_access)
-
-# kikke på oa_status
-resultater %>%
-  count(open_access) %>%
-  ggplot(
-    aes(
-      x = open_access, 
-      y = n
-      )
-    ) +
-  geom_col()
-```
-
-I følge Cristin er omtrent halvparten av HVLs 2017-publikasjoner ikke åpent tilgjengelige, litt over en fjerdedel gull OA og litt under en fjerdedel grønn OA.
-
-```{r restultat_plot}
-# OA og tidsskrift-nivå
-resultater %>%
-  group_by(
-    open_access, 
-    journal.nvi_level
-    ) %>%
+oa_data <- data %>%
+  group_by(license) %>%
   filter(
-    journal.nvi_level %in% c(1, 2)
+    n() > 2000,
+    !is.na(license)
     ) %>%
-  summarise(
-    antall = n()
-    ) %>%
-  mutate(
-    andel = antall / sum(antall)
-    ) %>%
-  ggplot(
-    aes(
-      x = open_access, 
-      y = andel, 
-      fill = journal.nvi_level
-      )
-    ) +
-  geom_col(position = "dodge")
-```
-
-Det er noe lavere nivå 2-andel på gull OA-publikasjonene.
-
-## Oppdrag: finansiør og kvalitet
-Det kan være interessant å se om enkelte finansiører oppnår forskjellig nivå 2-andel i sin finansiering. Finansiø
-
-Vi starter med å slå sammen `results` med `funding source` fra Cristin-uttrekket, og ta bort unødvendige kolonner:
-
-```{r left_join}
-#slå sammen med lenke-tabellen
-cristin_funding <- resultater %>%
-  select(
-    cristin_result_id,
-    journal.nvi_level
-    ) %>%
-  left_join(publikasjoner$funding_sources, by = "cristin_result_id")
-
-cristin_funding %>%
-  count(funding_source_code, sort = TRUE)
+  select(-best_open_url, -random) %>%
+  ungroup()
 ```
 
 ```{r}
-cristin_funding %>%
-  filter(
-    journal.nvi_level %in% c(1, 2),
-    funding_source_code %in% c(
-      NA, "NFR", "HIB", "UIS", "HVE"
-      )
-    ) %>%
-  group_by(funding_source_code, journal.nvi_level) %>%
+oa_data %>%
+  group_by(publisher, oa_color_long) %>%
   summarise(antall = n()) %>%
-  mutate(andel = antall / sum(antall)) %>%
-  ggplot(
-    aes(x = funding_source_code,
-        y = andel,
-        fill = journal.nvi_level)
-  ) +
-  geom_col()
+  filter(antall > 10) %>%
+  View()
 ```
 

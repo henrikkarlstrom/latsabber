@@ -11,7 +11,7 @@ output: distill::distill_article
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_chunk$set(echo = TRUE)
 
 library(tidyverse)
 library(httr)
@@ -22,7 +22,7 @@ library(hrbrthemes)
 theme_set(theme_ipsum_rc())
 ```
 
-##En arbeidsflyt med `tidyverse`
+## En arbeidsflyt med `tidyverse`
 
 La oss se på et eksempel på en analyseoppgave vi kan utføre med verktøy fra `tidyverse`.
 
@@ -31,7 +31,7 @@ Vi er interessert i å se på hvor mye av publiseringen til en institusjon som e
 
 Første steg er å hente ut publikasjonene fra Cristin. Vi nøyer oss med å se på vitenskapelige artikler i denne omgang:
 
-```{r cristin_uttrekk, echo = FALSE}
+```{r cristin_uttrekk, echo = TRUE}
 publikasjoner <- get_cristin_results(
   institution = 203,
   category = "ARTICLE",
@@ -55,7 +55,7 @@ La oss starte med å se på OA-kategoriseringen i `results`-tabellen:
 resultater <- publikasjoner$results
 ```
 
-```{r restultat_analyse, eval = FALSE}
+```{r restultat_analyse, eval = TRUE}
 # sjekke oa_status
 resultater %>%
   count(open_access)
