@@ -1,0 +1,229 @@
+---
+title: "Jobbe med datasett"
+subtitle: "Bibliometri for latsabber, modul 4"
+author: ""
+date: "`r format(Sys.Date(), format = '%d.%m.%Y')`"
+output: 
+  xaringan::moon_reader:
+    lib_dir: libs
+    css: ["ntnu_slides.css"]
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+class: inverse, middle, right
+
+> "It's true that hard work never killed anybody, but I figure why take the chance" 
+> 
+> Ronald Wilson Reagan
+
+---
+
+class: inverse, center, middle
+
+# Slå sammen datasett
+
+---
+
+## Enkel liming
+
+--
+
+### `bind_rows()` og bind_cols()
+
+--
+
+
+
+---
+
+
+## Eksport
+
+--
+
+### `write_csv()`
+
+--
+
+Excel kan lese .csv, men omvendt volder smerte
+
+--
+
+### `writexl::write_xlsx()`
+
+--
+
+Ikke glem å installere `writexl::` først...
+
+---
+
+class: center, middle
+
+# `dplyr::`
+
+---
+
+## Rader: `filter()`
+
+![](images/filter1.png)
+
+---
+
+## Rader: `filter()`
+
+![](images/filter2.png)
+
+---
+
+## Rader: `filter()`
+
+![](images/filter3.png)
+
+---
+
+## Rader: `arrange()`
+
+![](images/arrange1.png)
+
+---
+
+## Rader: `arrange()`
+
+![](images/arrange2.png)
+
+---
+
+## Rader: `arrange()`
+
+![](images/arrange3.png)
+
+---
+
+## Kolonner: `select()`
+
+![](images/arrange1.png)
+
+---
+
+## Kolonner: `select()`
+
+![](images/select2.png)
+
+---
+
+## Kolonner: `select()`
+
+![](images/select3.png)
+
+---
+
+## Kolonner: `rename()`
+
+![](images/arrange1.png)
+
+---
+
+## Kolonner: `rename()`
+
+![](images/rename2.png)
+
+---
+
+## Kolonner: `rename()`
+
+![](images/rename3.png)
+
+
+---
+
+## Nye verdier: `mutate()`
+
+![](images/arrange1.png)
+
+---
+
+## Nye verdier: `mutate()`
+
+![](images/mutate2.png)
+
+---
+
+## Nye verdier: `mutate()`
+
+![](images/mutate3.png)
+
+---
+
+## Nye verdier: `summarise()`
+
+
+---
+
+## Nye verdier: `summarise()`
+
+![](images/arrange1.png)
+
+---
+
+## Nye verdier: `summarise()`
+
+![](images/summarise2.png)
+
+---
+
+## Nye verdier: `summarise()`
+
+![](images/summarise3.png)
+
+---
+
+## Dreie data: `pivot_longer()`
+
+![](images/longer1.png)
+
+---
+
+## Dreie data: `pivot_longer()`
+
+![](images/longer2.png)
+
+---
+
+## Dreie data: `pivot_longer()`
+
+![](images/longer3.png)
+
+---
+
+## Dreie data: `pivot_wider()`
+
+![](images/wider1.png)
+
+---
+
+## Dreie data: `pivot_wider()`
+
+![](images/wider2.png)
+
+---
+
+## Dreie data: `pivot_wider()`
+
+![](images/wider3.png)
+
+---
+
+class: inverse, middle, right
+
+> "Den uvirksomme er fortsatt et bedre menneske enn den virksomme".
+>
+> Friedrich Nietzsche, **Menneskelig, altfor menneskelig**
+
+
