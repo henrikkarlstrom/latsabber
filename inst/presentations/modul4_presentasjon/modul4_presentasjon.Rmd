@@ -19,7 +19,8 @@ knitr::opts_chunk$set(echo = TRUE)
 
 class: inverse, middle, right
 
-> "It's true that hard work never killed anybody, but I figure why take the chance" 
+> "It's true that hard work never killed anybody, 
+> but I figure why take the chance" 
 > 
 > Ronald Wilson Reagan
 
@@ -31,199 +32,58 @@ class: inverse, center, middle
 
 ---
 
-## Enkel liming
+## Enkel liming: `bind_rows()`
 
---
-
-### `bind_rows()` og bind_cols()
-
---
-
-
+![](images/bind_rows1.png)
 
 ---
 
+## Enkel liming: `bind_rows()`
 
-## Eksport
-
---
-
-### `write_csv()`
-
---
-
-Excel kan lese .csv, men omvendt volder smerte
-
---
-
-### `writexl::write_xlsx()`
-
---
-
-Ikke glem å installere `writexl::` først...
+![](images/bind_rows2.png)
 
 ---
 
-class: center, middle
+## Enkel liming: `bind_rows()`
 
-# `dplyr::`
-
----
-
-## Rader: `filter()`
-
-![](images/filter1.png)
+![](images/bind_rows3.png)
 
 ---
 
-## Rader: `filter()`
+## Enkel liming: `bind_cols()`
 
-![](images/filter2.png)
-
----
-
-## Rader: `filter()`
-
-![](images/filter3.png)
+![](images/bind_cols1.png)
 
 ---
 
-## Rader: `arrange()`
+## Enkel liming: `bind_cols()`
 
-![](images/arrange1.png)
-
----
-
-## Rader: `arrange()`
-
-![](images/arrange2.png)
+![](images/bind_cols2.png)
 
 ---
 
-## Rader: `arrange()`
+## Enkel liming: `bind_cols()`
 
-![](images/arrange3.png)
-
----
-
-## Kolonner: `select()`
-
-![](images/arrange1.png)
+![](images/bind_cols3.png)
 
 ---
 
-## Kolonner: `select()`
+## Berike et datasett: `left_join()`
 
-![](images/select2.png)
-
----
-
-## Kolonner: `select()`
-
-![](images/select3.png)
+![](images/join1.png)
 
 ---
 
-## Kolonner: `rename()`
+## Berike et datasett: `left_join()`
 
-![](images/arrange1.png)
-
----
-
-## Kolonner: `rename()`
-
-![](images/rename2.png)
+![](images/join2.png)
 
 ---
 
-## Kolonner: `rename()`
+## Berike et datasett: `left_join()`
 
-![](images/rename3.png)
-
-
----
-
-## Nye verdier: `mutate()`
-
-![](images/arrange1.png)
-
----
-
-## Nye verdier: `mutate()`
-
-![](images/mutate2.png)
-
----
-
-## Nye verdier: `mutate()`
-
-![](images/mutate3.png)
-
----
-
-## Nye verdier: `summarise()`
+![](images/join3.png)
 
 
----
-
-## Nye verdier: `summarise()`
-
-![](images/arrange1.png)
-
----
-
-## Nye verdier: `summarise()`
-
-![](images/summarise2.png)
-
----
-
-## Nye verdier: `summarise()`
-
-![](images/summarise3.png)
-
----
-
-## Dreie data: `pivot_longer()`
-
-![](images/longer1.png)
-
----
-
-## Dreie data: `pivot_longer()`
-
-![](images/longer2.png)
-
----
-
-## Dreie data: `pivot_longer()`
-
-![](images/longer3.png)
-
----
-
-## Dreie data: `pivot_wider()`
-
-![](images/wider1.png)
-
----
-
-## Dreie data: `pivot_wider()`
-
-![](images/wider2.png)
-
----
-
-## Dreie data: `pivot_wider()`
-
-![](images/wider3.png)
-
----
-
-class: inverse, middle, right
-
-> "Den uvirksomme er fortsatt et bedre menneske enn den virksomme".
->
-> Friedrich Nietzsche, **Menneskelig, altfor menneskelig**
 
 
