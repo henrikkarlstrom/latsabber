@@ -14,9 +14,7 @@ runtime: shiny_prerendered
 library(learnr)
 library(tidyverse)
 library(latsabber)
-library(gt)
 library(hrbrthemes)
-library(gganimate)
 
 knitr::opts_chunk$set(echo = FALSE)
 tutorial_options(
