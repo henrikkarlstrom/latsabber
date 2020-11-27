@@ -1,0 +1,521 @@
+---
+title: "Rapportering"
+description: |
+  Bibliometri for latsabber: Modul 6
+author:
+  - name: Henrik Karlstrøm 
+    url: https://www.ntnu.no/ansatte/henrik.karlstrom
+    affiliation: NTNU
+date: "`r Sys.Date()`"
+output: 
+  distill::distill_article:
+    toc: true
+    toc_depth: 2
+    code_fold: hide
+repository_url: https://github.com/henrikkarlstrom/latsabber
+creative_commons: CC BY
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+<aside>
+```{r codefolder, echo=FALSE, results='asis'}
+codefolder::distill(init = "hide")
+```
+</aside>
+
+## Full arbeidsflyt
+I dette eksempelet skal vi se på hvordan en komplett arbeidsflyt fra dataimport via datamanipulering og sammenkobling av flere kilder til endelig visualisering og rapportering kan se ut.
+
+Dette er en i seg selv et eksempel på hvordan en rapport kan se ut i sin endelige form. Selv om jeg sjelden faktisk produserer et slikt ferdig produkt liker jeg å jobbe med utgangspunkt i et RMarkdown-dokument, sånn at jeg har muligheten til å skrive forklarende tekst til koden. Eventuelle grafer blir også lagret i prosessen og kan deles eller legges inn i presentasjoner etter behov. ^[Selv om jeg den siste tiden har begynt å lage presentasjoner også i RMarkdown (med [Xaringan](https://github.com/yihui/xaringan/wiki)), og da blir grafene generert rett fra kode når jeg skal presentere.]
+
+## Eksempel: IMT-publisering
+[Institutt for Marin Teknikk](https://www.ntnu.no/imt) ved NTNU er et aktivt forskningsmiljø, og sampubliserer med mange slags institusjoner. De var interessert i å finne ut og rapportere om noen aspekter ved egen publiseringsvirksomhet. 
+
+### Data
+Til dette oppdraget har jeg hentet ut sampubliseringsinformasjon fra [Cristin](https://api.cristin.no/), siteringsdata fra [Dimensions](https://app.dimensions.ai/) og geografisk informasjon fra [Global Research Identifier Database](https://www.grid.ac/).
+
+Jeg har ryddet litt i GRID-dataene. Basen inneholder store mengder data om hundre tusen institusjoner, og mye av det er av lite interesse i denne sammenheng, så jeg har begrenset det til informasjon om type institusjon og geografisk plassering.
+
+## Oppsett
+Først laster vi inn pakkene vi skal bruke. I dette tilfellet trenger vi de vanlige `tidyverse`-funksjonene, og `hrbrthemes` for penere grafer.
+
+```{r}
+library(tidyverse)
+library(hrbrthemes)
+```
+
+Det neste er å laste inn data:
+
+```{r}
+imt_cristin <- read_csv("imt_cristin.csv") %>%
+  janitor::clean_names()
+imt_dimensions <- read_csv("imt_dimensions.csv") %>%
+  janitor::clean_names()
+grid <- read_csv("grid_condensed.csv") %>%
+  janitor::clean_names()
+```
+
+
+Merk den ekstra funksjonen `clean_names()`, som kommer fra `janitor`-pakken. Det er ikke strengt tatt nødvendig å laste inn pakker med `library()`-funksjonen til å begynne med, det går også an å henvise til en funksjon i en pakke direkte med `[pakkenavn]::`-notasjonen.
+
+## Første titt på datasettene
+La oss se litt nærmere på de tre datasettene vi har. En typisk rutine for å kikke på datasett er å se hva slags variabler vi har, og litt enkel oppsummerende statistikk for å se hvordan verdiene fordeler seg.
+
+### Cristin-tall
+Cristintallene inneholder id fra Cristin-basen, DOI for kobling mot internasjonale baser, kvalitetsnivået på hver publikasjon og årstall for utgivelse.
+
+```{r, echo = FALSE}
+knitr::kable(
+  head(imt_cristin, 5), 
+  caption = "imt_cristin, fem øverste rader")
+```
+
+Det er ikke så mye vits å oppsummere ting som er i de to id-kolonnene, men en god start kan være å se på fordelingen på antall publikasjoner i året:
+
+```{r, eval = FALSE}
+imt_cristin %>%
+  count(arstall, name = "antall")
+```
+
+```{r, echo = FALSE}
+imt_cristin %>%
+  count(arstall, name = "antall") %>%
+  knitr::kable(
+   col.names = c("År", "Antall"),
+   caption = "Publikasjoner per år, IMT 2016-2019"
+   )
+```
+
+Den samme `count()`-funksjonen kan telle opp antall per nivå også:
+
+```{r, eval = FALSE}
+imt_cristin %>%
+  count(kvalitetsniva, name = "antall")
+```
+
+```{r, echo = FALSE}
+imt_cristin %>%
+  count(kvalitetsniva, name = "antall") %>%
+  knitr::kable(
+    col.names = c("Nivå", "Antall"),
+    caption = "Publikasjoner per kvalitetsnivå, IMT 2016-2019"
+    )
+```
+
+Ser ut som omtrent en femtedel av IMTs publikasjoner er på nivå 2 de siste årene.
+
+### Dimensions
+La oss se på de første radene på Dimensions-dataene:
+
+```{r, echo = FALSE}
+knitr::kable(
+  head(imt_dimensions, 10),
+  caption = "imt_dimensions, ti første rader"
+  )
+```
+
+Hver rad representerer en forfatter på en publikasjon. Det betyr at mye informasjon, som DOI på publikasjonen, siteringstallet og geografisk informasjon om forfatterinstitusjonene er duplisert, men det gjør det også mulig å beregne ting som forfatter- og siteringsandeler per institusjon per publikasjon.
+
+Id-verdien "grid.5947.f" representerer NTNU, som ikke overraskende dukker opp en del ganger. Vi kan jo telle opp hvilke byer som er mest til stede i datasettet. Vi er mest interessert i samarbeidsinstitusjonene, så først filtrerer vi ut tomme verdier og tar ut NTNU. Her er de ti øverste:
+
+```{r, eval = FALSE}
+imt_dimensions %>%
+  filter(
+    !is.na(id),
+    id != "grid.5947.f"
+    ) %>%
+  count(city, sort = TRUE)
+```
+
+```{r, echo = FALSE}
+imt_dimensions %>%
+  filter(
+    !is.na(id),
+    id != "grid.5947.f"
+    ) %>%
+  count(city, sort = TRUE) %>%
+  head(10) %>%
+  knitr::kable(
+    col.names = c("By", "Antall"),
+    caption = "Ti hyppigst forekommende sampubliserende byer"
+    )
+```
+
+### GRID
+Til slutt, GRID. Datasettet har blitt kondensert ned til en id-variabel, som gjør det mulig å koble med Dimensions-dataene, navnet på institusjonen, type institusjon og geografiske koordinater:
+
+```{r, echo = FALSE}
+knitr::kable(
+  head(grid, 5),
+  caption = "grid, fem første rader"
+  )
+```
+
+Dette er en komplett base med nesten hundre tusen rader, så vi lærer ikke så mye om IMT-publisering av å oppsummere denne tabellen.
+
+## Visualisering
+Oppsummerende tabeller er vel og bra, men en god graf kondenserer informasjon mye bedre, og er også lettere å dele med andre for å presentere den samme informasjonen. Her er det mange muligheter, så dette blir bare noen raske eksempler på hvordan ting kan gjøres, ikke en uttømmende analyse.
+
+### Publisering
+
+Vi kan finne ut en del om fordelinger bare fra Cristin-dataene. Jeg starter med å reprodusere en av de oppsummerende tabellen fra over: 
+
+```{r, layout = "l-body-outset", fig.cap = "Publisering IMT 2016-2019"}
+imt_cristin %>%
+  ggplot(
+    mapping = aes(
+      x = arstall
+      )
+    ) +
+  # Vi trenger ikke indikere noen y-akseverdi når vi bare teller forekomster
+  geom_bar(fill = "#28585a") +
+  labs(
+    title = "Svak økning i publikasjoner",
+    x = "",
+    y = "Antall publikasjoner"
+    ) +
+  ylim(0, 300) +
+  theme_ipsum_rc(grid = "Y") +
+  theme(plot.title.position = "plot")
+```
+
+Ser ut som det er en liten økning i publisering siden 2017, med et foreløpig toppår i 2018.
+
+En fordel med visualiseringer er at de muliggjør sammenligning av fordelinger av variabler på en måte som er umiddelbart forståelig. Vi kan for eksempel se på fordelingen av publikasjoner på publiseringsnivå:
+
+```{r, layout = "l-body-outset", fig.cap="Nivåfordeling IMT 2016-2019"}
+imt_cristin %>%
+  ggplot(
+    mapping = aes(
+      x = arstall,
+      fill = kvalitetsniva
+      ),
+    ) +
+  # Her indikerer vi at søylene skal sidestilles i stedet for stables
+  geom_bar(position = "dodge") +
+  labs(
+    title = "Økningen er størst på nivå 2",
+    x = "",
+    y = "Antall publikasjoner",
+    fill = NULL
+    ) +
+  ylim(0, 200) +
+  theme_ipsum_rc(grid = "Y") +
+  # Dette angir farger på søylene
+  scale_fill_manual(values = c("#28585a", "#aad9dd")) +
+  theme(plot.title.position = "plot")
+```
+
+Vi kan også uttrykke dette i form av andelen publikasjoner på nivå 2. Den eneste endringen er at vi gjør en liten beregning på dataene før de sendes inn i `ggplot()`:
+
+```{r, layout = "l-body-outset", fig.cap="Andel publisering på nivå 2, IMT 2016-2019"}
+imt_cristin %>%
+  # Teller hvor mange rader som passer inn i hvert år og kvalitetsnivå
+  count(arstall, kvalitetsniva) %>%
+  # Lager en gruppe for hvert år
+  group_by(arstall) %>%
+  # Beregner andelen av hvert nivå for hvert nivå
+  mutate(andel = n / sum(n)) %>%
+  # Vi trenger bare nivå 2
+  filter(kvalitetsniva == "Nivå 2") %>%
+  ggplot(
+    mapping = aes(
+      x = arstall,
+      y = andel
+      )
+    ) +
+  geom_col(fill = "#28585a") +
+  scale_y_continuous(
+    limits = c(0,1),
+    labels = scales::percent
+    ) +
+  theme_ipsum_rc(grid = "Y") +
+  labs(
+    title = "Økning i andel på nivå 2",
+    y = "Andel publikasjoner på nivå 2",
+    x = NULL
+    ) +
+  theme(plot.title.position = "plot")
+```
+
+### Sampublisering
+
+På tide å se hva vi kan finne ut om sampubliseringen til IMT. Til det trenger vi informasjon som er i de andre tabellene vi har lastet inn. Vi starter med å slå sammen datasettene med `left_join()`. Vi gjør det to ganger, først på DOI-kolonnen i Cristin- og Dimensions-tabellene, og så på id-kolonnen i den nye tabellen og GRID-tabellen. Dette lagrer vi i en ny tabell, som kan være utgangspunkt for nye analyser:
+
+```{r}
+pubs <- imt_cristin %>%
+  left_join(imt_dimensions, by = "doi") %>%
+  left_join(grid, by = "id")
+```
+
+```{r, echo = FALSE, layout = "l-body-outset"}
+rmarkdown::paged_table(sample_n(pubs, 100))
+```
+
+Som vi ser er nå kolonnene fra alle tre datasett slått sammen, med de rette verdiene fra Dimensions og GRID. Nå vet vi hvilke institusjoner IMT sampubliserer med, og hvor de ligger.
+
+### Institusjonstype
+En ting mange er interessert i er samarbeid med andre typer institusjoner enn akademiske. GRID inneholder en klassifisering av institusjonstyper, og en kategori som er særlig interessant er institusjoner innen næringslivet, klassifisert som "Company".
+
+```{r, eval = FALSE}
+grid %>%
+  count(types)
+```
+
+```{r, echo = FALSE}
+grid %>%
+  count(types) %>%
+  knitr::kable(
+    col.names = c("Type", "Antall"),
+    caption = "Institusjonstyper i GRID")
+```
+
+For at vi skal kunne visualisere dette er det en god ide å lage en ny tabell med noen beregnede verdier. Vi vil beregne hvor stor andel av hver publikasjon hver institusjon bør godskrives, og det samme med antall siteringer de har mottatt. På denne måten får ikke publikasjoner med mange forfattere uforholdsmessig god uttelling når vi skal oppsummere. I tillegg reduserer vi antallet institusjonstyper noe: 
+
+```{r}
+andeler <- pubs %>%
+  mutate(
+    # Putter alt annet enn våre fokuskategorier i en "annet"-kategori 
+    types = fct_other(
+      types, 
+      keep = c("Education", "Company"), 
+      other_level = "Annet"
+      ),
+    # Og denne endrer verdier for oss, i dette tilfelle fra engelsk til norsk
+    types = recode(
+      types,
+      "Education" = "Akademisk",
+      "Company" = "Næringsliv"
+      )
+    ) %>%
+  group_by(cristin_resultat_id) %>%
+  # Beregner andeler
+  mutate(
+    forfatterandel = 1 / n(),
+    siteringsandel = times_cited / n()
+    ) %>%
+  ungroup() %>%
+  # Når andelene er beregnet trenger vi ikke tomme rader lenger
+  filter(!is.na(id))
+```
+
+```{r, layout = "l-body-outset", echo = FALSE}
+rmarkdown::paged_table(sample_n(pubs, 100))
+```
+
+Med denne koden har vi endret variablen for institusjonstype til å inneholde to kategorier - utdanningsinstitusjoner og alle andre. Til det har vi brukt `fct_other()`-funksjonen fra `tidyverse`-pakken `forcats`, som inneholder funksjoner for å jobbe med tekstvariabler.
+
+Deretter har vi brukt `group_by()` til å gjøre hver publikasjon til sin egen gruppe, og dermed blir beregningene vi gjør i `mutate()` gjort en gang for hver gruppe - altså for hver publikasjon. Til slutt passer vi på å avgruppere datasettet igjen, så vi kan gjøre andre typer grupperte operasjoner senere.
+
+Nå som vi har forfatter- og siteringsandeler per institusjon per publikasjon kan vi begynne å se på noen mer kompliserte sammenhenger. Her er fordelingen av siteringsandeler på typeklassifiseringen vi lagde over:
+
+```{r, layout = "l-body-outset", fig.cap = "Fordeling av gjennomsnittlige siteringsandeler på typer forskningsinstitusjon"}
+andeler %>%
+  filter(id != "grid.5947.f") %>%
+  group_by(cristin_resultat_id, types) %>%
+  summarise(
+    siteringsandel = mean(siteringsandel)
+    ) %>%
+  mutate(
+    siteringsandel = ifelse(
+      siteringsandel == 0, 0.1, siteringsandel
+      )
+    ) %>%
+  ggplot(
+    mapping = aes(
+      x = types,
+      y = siteringsandel,
+      fill = types,
+      color = types
+      )
+    ) +
+  # Et lag for punktene
+  geom_jitter(alpha = 0.3, width = 0.2) +
+  # Og et for kvartil- og median-verdiene
+  geom_boxplot(alpha = 0.6) +
+  # Logskala, så det ikke domineres av en enkelt høy verdi
+  scale_y_log10(labels = scales::number_format(1)) +
+  theme_ipsum_rc(grid = "Y") +
+  scale_fill_manual(
+    values = c("#28585a", "#f7d019", "#aad9dd")
+    ) +
+  scale_color_manual(
+    values = c("#28585a", "#f7d019", "#aad9dd")
+    ) +
+  labs(
+    title = "Ingen forskjell mellom institusjonstyper",
+    x = NULL,
+    y = "Siteringsandeler (log)"
+    ) +
+  theme(
+    plot.title.position = "plot",
+    legend.position = "none"
+    )
+```
+
+
+## IMT på kartet
+
+En morsom ting vi kan gjøre er å visualisere sampubliseringen på kartet. Her benytter vi oss av den kartografiske informasjonen i GRID til å lage punkter på et kart for hver samarbeidsinstitusjon. Først beregner vi forfatter- og siteringsandeler for hver sampubliserende institusjon som *ikke* er NTNU:
+
+```{r}
+kart <- andeler %>%
+  filter( 
+    name != "Norwegian University of Science and Technology"
+    ) %>%
+  group_by(id) %>%
+  summarise(
+    andeler = sum(forfatterandel),
+    siteringer = sum(siteringsandel),
+    lat = lat,
+    lng = lng,
+    types = types,
+    land = country_code
+    ) %>%
+  distinct()
+```
+
+```{r, layout = "l-body-outset", echo = FALSE}
+knitr::kable(head(kart, 10))
+```
+
+Deretter kan vi ta i bruk det innebygde verdenskartet i `ggplot2` til å plassere institusjonene og gi punktene størrelse og farge etter henholdsvis forfatterandeler og siteringsandeler på publikasjonene:
+
+```{r, layout = "l-page", fig.cap="Forfatter- og siteringsandeler for IMTs sampublikasjoner 2016-2019"}
+world <- map_data("world")
+
+kart %>%
+  ggplot() +
+  # Dette lager kartet
+  geom_map(
+    # Lite sampublisering med Sørpolen, og den stor plass på Mercator-kart
+    data = world %>% filter(region != "Antarctica"),
+    map = world,
+    aes(map_id = region),
+    color = "white",
+    fill = "grey85",
+    size = 0.05,
+    alpha = 0.8
+    ) +
+  # Og dette laget fyller på med punktdata
+  geom_point(
+    aes(
+      x = lng, 
+      y = lat, 
+      color = siteringer, 
+      size = andeler
+      )
+    ) +
+  scale_size(labels = scales::number_format(1)) +
+  scale_color_gradient(
+    low = "#c9d755",
+    high = "#28585a"
+    ) +
+  theme_void(base_family = "Roboto Condensed") +
+  labs(
+    color = "Siteringer",
+    size = "Forfatterandeler"
+    ) +
+  theme(
+    legend.position = "bottom",
+    legend.title = element_text(size = 8),
+    legend.text = element_text(size = 6),
+    legend.key.size = unit(10, "pt")
+    )
+```
+
+Vi kan også se på det på landbasis. Først må vi beregne verdiene på landnivå:
+
+```{r}
+kart_land <- kart %>%
+  mutate(
+    # Vi må gjøre om landkoder til landnavn
+    region = countrycode::countrycode(
+      sourcevar = land, 
+      origin = "iso2c", 
+      destination = "country.name"
+      )
+    ) %>%
+  # Og beregne andeler per land i stedet for institusjon
+  group_by(region) %>%
+  summarise(
+    Forfatterandeler = sum(andeler),
+    Siteringer = sum(siteringer)
+    ) %>%
+  right_join(world, by = "region")
+```
+
+Her er ti tilfeldige land fra tabellen:
+
+```{r, layout = "l-body-outset", echo = FALSE}
+knitr::kable(sample_n(kart_land, 10))
+```
+
+Deretter kan vi fargelegge landene etter antall forfatterandeler de har på publikasjonene til IMT:
+
+```{r, layout = "l-page", fig.cap="Forfatterandeler per sampubliserende land, IMT 2016-2019"}
+kart_land %>%
+  filter(region != "Antarctica") %>%
+  ggplot(
+    mapping = aes(
+      x = long, 
+      y = lat, 
+      group = group, 
+      fill = Forfatterandeler
+      )
+    ) +
+  geom_polygon(
+    color = "white",
+    size = 0.05,
+    alpha = 0.8,
+    ) +
+  scale_fill_gradient(
+    low = "#f7d019", 
+    high = "#28585a",
+    na.value = "grey85"
+    ) +
+  theme_void(base_family = "Roboto Condensed") +
+  labs(fill = "Forfatterandeler") +
+  theme(
+    legend.position = "bottom",
+    legend.title = element_text(size = 8),
+    legend.text = element_text(size = 6),
+    legend.key.size = unit(10, "pt")
+    )
+```
+
+...og her for siteringsandeler:
+
+```{r, layout = "l-page", fig.cap="Siteringsandeler per sampubliserende land, IMT 2016-2019"}
+kart_land %>%
+  filter(region != "Antarctica") %>%
+  ggplot(
+    mapping = aes(
+      x = long, 
+      y = lat, 
+      group = group, 
+      fill = Siteringer
+      )
+    ) +
+  geom_polygon(
+    color = "white",
+    size = 0.05,
+    alpha = 0.8,
+    ) +
+  scale_fill_gradient(
+    low = "#aad9dd", 
+    high = "#28585a",
+    na.value = "grey85"
+    ) +
+  theme_void(base_family = "Roboto Condensed") +
+  labs(fill = "Siteringer") +
+  theme(
+    legend.position = "bottom",
+    legend.title = element_text(size = 8),
+    legend.text = element_text(size = 6),
+    legend.key.size = unit(10, "pt")
+    )
+```

@@ -1,0 +1,329 @@
+---
+title: "Visualisering"
+subtitle: "Bibliometri for latsabber, modul 5"
+author: ""
+date: "`r format(Sys.Date(), format = '%d.%m.%Y')`"
+output: 
+  xaringan::moon_reader:
+    lib_dir: libs
+    css: ["ntnu_slides.css"]
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(latsabber)
+library(hrbrthemes)
+
+plotdata <- asbmb_pubs %>%
+  filter(url_type == "DOI") %>%
+  mutate(
+    doi = tolower(str_remove(link_url, "^^.*?(?=\\d)")),
+    date = lubridate::date(created.date)
+    ) %>%
+  left_join(citations, by = "doi") %>%
+  mutate(
+    times_cited = replace_na(times_cited, 0)
+    )
+```
+
+
+class: inverse, center, middle
+
+# Grafikkens grammatikk
+
+---
+
+## Grafer er lagkaker
+
+![](images/lag1.png)
+---
+
+## Grafer er lagkaker
+
+![](images/lag2.png)
+
+---
+
+## Grafer er lagkaker
+
+![](images/lag3.png)
+
+---
+
+## Grafer er lagkaker
+
+![](images/lag4.png)
+
+---
+
+## Grafer er lagkaker
+
+![](images/lag5.png)
+
+---
+
+## Grafer er lagkaker
+
+![](images/lag6.png)
+
+---
+
+## Grafer er lagkaker
+
+![](images/lag7.png)
+
+---
+
+## Grafer er lagkaker
+
+![](images/lag8.png)
+
+---
+
+## `ggplot()` gjør mye av jobben
+
+![](images/egne_valg.png)
+
+---
+
+```{r, echo = FALSE, out.height=600, out.width=680}
+knitr::include_graphics("images/flyt1.png")
+```
+
+---
+
+```{r, echo = FALSE, out.height=600, out.width=680}
+knitr::include_graphics("images/flyt2.png")
+```
+
+---
+
+```{r, echo = FALSE, out.height=600, out.width=680}
+knitr::include_graphics("images/flyt3.png")
+```
+
+---
+
+```{r, echo = FALSE, out.height=600, out.width=680}
+knitr::include_graphics("images/flyt4.png")
+```
+
+---
+
+
+```{r, echo = FALSE, out.height=600, out.width=680}
+knitr::include_graphics("images/flyt5.png")
+```
+
+---
+
+```{r, echo = FALSE, out.height=600, out.width=680}
+knitr::include_graphics("images/flyt6.png")
+```
+---
+
+```{r, echo = FALSE, out.height=600, out.width=680}
+knitr::include_graphics("images/flyt7.png")
+```
+---
+
+```{r, echo = FALSE, out.height=600, out.width=680}
+knitr::include_graphics("images/flyt8.png")
+```
+
+---
+
+```{r, echo = FALSE, out.height=600, out.width=680}
+knitr::include_graphics("images/flyt9.png")
+```
+---
+
+```{r, echo = FALSE, out.height=600, out.width=680}
+knitr::include_graphics("images/flyt10.png")
+```
+---
+
+```{r, echo = FALSE, out.height=600, out.width=680}
+knitr::include_graphics("images/flyt11.png")
+```
+---
+
+```{r, echo = FALSE, out.height=600, out.width=680}
+knitr::include_graphics("images/flyt12.png")
+```
+
+---
+.pull-left[
+```{r, echo = TRUE, eval = FALSE}
+plotdata %>%
+  ggplot()
+```
+]
+.pull-right[
+```{r, echo = FALSE}
+plotdata %>%
+  ggplot()
+```
+]
+---
+.pull-left[
+```{r, echo = TRUE, eval = FALSE}
+plotdata %>%
+  ggplot(
+    mapping = aes(
+      x = date,
+      y = times_cited,
+      color = journal.name
+      )
+    )
+```
+]
+.pull-right[
+```{r, echo = FALSE}
+plotdata %>%
+  ggplot(
+    mapping = aes(
+      x = date,
+      y = times_cited,
+      color = journal.name
+      )
+    )
+```
+]
+---
+.pull-left[
+```{r, echo = TRUE, eval = FALSE}
+plotdata %>%
+  ggplot(
+    mapping = aes(
+      x = date,
+      y = times_cited,
+      color = journal.name
+      )
+    ) +
+  geom_point()
+```
+]
+.pull-right[
+```{r, echo = FALSE}
+plotdata %>%
+  ggplot(
+    mapping = aes(
+      x = date,
+      y = times_cited,
+      color = journal.name
+      )
+    ) +
+  geom_point()
+```
+]
+---
+
+.pull-left[
+```{r, echo = TRUE, eval = FALSE}
+plotdata %>%
+  ggplot(
+    mapping = aes(
+      x = date,
+      y = times_cited,
+      color = journal.name
+      )
+    ) +
+  geom_point() +
+  labs(
+    title = "Siteringer av ASBMB-tidsskrift",
+    x = "",
+    y = "Antall siteringer",
+    color = "Tidsskrift"
+    )
+```
+]
+.pull-right[
+```{r, echo = FALSE}
+plotdata %>%
+  ggplot(
+    mapping = aes(
+      x = date,
+      y = times_cited,
+      color = journal.name
+      )
+    ) +
+  geom_point() +
+  labs(
+    title = "Siteringer av ASBMB-tidsskrift",
+    x = "",
+    y = "Antall siteringer",
+    color = "Tidsskrift"
+    )
+```
+]
+---
+
+.pull-left[
+```{r, echo = TRUE, eval = FALSE}
+plotdata %>%
+  ggplot(
+    mapping = aes(
+      x = date,
+      y = times_cited,
+      color = journal.name
+      )
+    ) +
+  geom_point() +
+  labs(
+    title = "Siteringer av ASBMB-tidsskrift",
+    x = "",
+    y = "Antall siteringer",
+    color = "Tidsskrift"
+    ) +
+  theme_ipsum_rc()
+```
+]
+.pull-right[
+```{r, echo = FALSE}
+plotdata %>%
+  ggplot(
+    mapping = aes(
+      x = date,
+      y = times_cited,
+      color = journal.name
+      )
+    ) +
+  geom_point() +
+  labs(
+    title = "Siteringer av ASBMB-tidsskrift",
+    x = "",
+    y = "Antall siteringer",
+    color = "Tidsskrift"
+    ) +
+  theme_ipsum_rc()
+```
+]
+---
+```{r, echo = FALSE, out.height=600, out.width=680}
+knitr::include_graphics("images/cites.png")
+```
+---
+
+```{r, echo = FALSE, out.height=600, out.width=680}
+knitr::include_graphics("images/fakultetssamarbeid.png")
+```
+
+---
+
+```{r, echo = FALSE, out.height=500, out.width=800}
+knitr::include_graphics("images/pubplot.png")
+```
+
+---
+
+```{r, echo = FALSE, out.height=600, out.width=600}
+knitr::include_graphics("images/quspin.png")
+```
+
+---

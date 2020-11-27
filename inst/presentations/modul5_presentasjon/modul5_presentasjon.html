@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="" xml:lang="">
   <head>
-    <title>Jobbe med datasett</title>
+    <title>Visualisering</title>
     <meta charset="utf-8" />
     <meta name="author" content="" />
     <link rel="stylesheet" href="ntnu_slides.css" type="text/css" />
@@ -10,8 +10,8 @@
     <textarea id="source">
 class: center, middle, inverse, title-slide
 
-# Jobbe med datasett
-## Bibliometri for latsabber, modul 4
+# Visualisering
+## Bibliometri for latsabber, modul 5
 ### 28.05.2020
 
 ---
@@ -19,72 +19,220 @@ class: center, middle, inverse, title-slide
 
 
 
-class: inverse, middle, right
-
-&gt; "It's true that hard work never killed anybody, 
-&gt; but I figure why take the chance" 
-&gt; 
-&gt; Ronald Wilson Reagan
-
----
 
 class: inverse, center, middle
 
-# Slå sammen datasett
+# Grafikkens grammatikk
 
 ---
 
-## Enkel liming: `bind_rows()`
+## Grafer er lagkaker
 
-![](images/bind_rows1.png)
+![](images/lag1.png)
+---
+
+## Grafer er lagkaker
+
+![](images/lag2.png)
 
 ---
 
-## Enkel liming: `bind_rows()`
+## Grafer er lagkaker
 
-![](images/bind_rows2.png)
-
----
-
-## Enkel liming: `bind_rows()`
-
-![](images/bind_rows3.png)
+![](images/lag3.png)
 
 ---
 
-## Enkel liming: `bind_cols()`
+## Grafer er lagkaker
 
-![](images/bind_cols1.png)
-
----
-
-## Enkel liming: `bind_cols()`
-
-![](images/bind_cols2.png)
+![](images/lag4.png)
 
 ---
 
-## Enkel liming: `bind_cols()`
+## Grafer er lagkaker
 
-![](images/bind_cols3.png)
-
----
-
-## Berike et datasett: `left_join()`
-
-![](images/join1.png)
+![](images/lag5.png)
 
 ---
 
-## Berike et datasett: `left_join()`
+## Grafer er lagkaker
 
-![](images/join2.png)
+![](images/lag6.png)
 
 ---
 
-## Berike et datasett: `left_join()`
+## Grafer er lagkaker
 
-![](images/join3.png)
+![](images/lag7.png)
+
+---
+
+## Grafer er lagkaker
+
+![](images/lag8.png)
+
+---
+
+## `ggplot()` gjør mye av jobben
+
+![](images/egne_valg.png)
+
+---
+
+&lt;img src="images/flyt1.png" width="680" height="600" /&gt;
+
+---
+
+&lt;img src="images/flyt2.png" width="680" height="600" /&gt;
+
+---
+
+&lt;img src="images/flyt3.png" width="680" height="600" /&gt;
+
+---
+
+&lt;img src="images/flyt4.png" width="680" height="600" /&gt;
+
+---
+
+
+&lt;img src="images/flyt5.png" width="680" height="600" /&gt;
+
+---
+
+&lt;img src="images/flyt6.png" width="680" height="600" /&gt;
+---
+
+&lt;img src="images/flyt7.png" width="680" height="600" /&gt;
+---
+
+&lt;img src="images/flyt8.png" width="680" height="600" /&gt;
+
+---
+
+&lt;img src="images/flyt9.png" width="680" height="600" /&gt;
+---
+
+&lt;img src="images/flyt10.png" width="680" height="600" /&gt;
+---
+
+&lt;img src="images/flyt11.png" width="680" height="600" /&gt;
+---
+
+&lt;img src="images/flyt12.png" width="680" height="600" /&gt;
+
+---
+.pull-left[
+
+```r
+plotdata %&gt;%
+  ggplot()
+```
+]
+.pull-right[
+![](modul5_presentasjon_files/figure-html/unnamed-chunk-14-1.png)&lt;!-- --&gt;
+]
+---
+.pull-left[
+
+```r
+plotdata %&gt;%
+  ggplot(
+    mapping = aes(
+      x = date,
+      y = times_cited,
+      color = journal.name
+      )
+    )
+```
+]
+.pull-right[
+![](modul5_presentasjon_files/figure-html/unnamed-chunk-16-1.png)&lt;!-- --&gt;
+]
+---
+.pull-left[
+
+```r
+plotdata %&gt;%
+  ggplot(
+    mapping = aes(
+      x = date,
+      y = times_cited,
+      color = journal.name
+      )
+    ) +
+  geom_point()
+```
+]
+.pull-right[
+![](modul5_presentasjon_files/figure-html/unnamed-chunk-18-1.png)&lt;!-- --&gt;
+]
+---
+
+.pull-left[
+
+```r
+plotdata %&gt;%
+  ggplot(
+    mapping = aes(
+      x = date,
+      y = times_cited,
+      color = journal.name
+      )
+    ) +
+  geom_point() +
+  labs(
+    title = "Siteringer av ASBMB-tidsskrift",
+    x = "",
+    y = "Antall siteringer",
+    color = "Tidsskrift"
+    )
+```
+]
+.pull-right[
+![](modul5_presentasjon_files/figure-html/unnamed-chunk-20-1.png)&lt;!-- --&gt;
+]
+---
+
+.pull-left[
+
+```r
+plotdata %&gt;%
+  ggplot(
+    mapping = aes(
+      x = date,
+      y = times_cited,
+      color = journal.name
+      )
+    ) +
+  geom_point() +
+  labs(
+    title = "Siteringer av ASBMB-tidsskrift",
+    x = "",
+    y = "Antall siteringer",
+    color = "Tidsskrift"
+    ) +
+  theme_ipsum_rc()
+```
+]
+.pull-right[
+![](modul5_presentasjon_files/figure-html/unnamed-chunk-22-1.png)&lt;!-- --&gt;
+]
+---
+&lt;img src="images/cites.png" width="680" height="600" /&gt;
+---
+
+&lt;img src="images/fakultetssamarbeid.png" width="680" height="600" /&gt;
+
+---
+
+&lt;img src="images/pubplot.png" width="800" height="500" /&gt;
+
+---
+
+&lt;img src="images/quspin.png" width="600" height="600" /&gt;
+
+---
     </textarea>
 <style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
 <script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>

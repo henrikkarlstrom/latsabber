@@ -1,0 +1,62 @@
+---
+title: "Jobbe med datasett"
+description: |
+  Bibliometri for latsabber: Modul 4
+author:
+  - name: Henrik Karlstrøm 
+    url: https://www.ntnu.no/ansatte/henrik.karlstrom
+    affiliation: NTNU
+date: "`r Sys.Date()`"
+output: distill::distill_article
+---
+
+```{r setup, include=FALSE}
+
+### OPPSETT ###
+knitr::opts_chunk$set(echo = FALSE)
+
+### Pakkene vi trenger ###
+library(tidyverse)
+library(latsabber)
+
+```
+
+```{r}
+jbc_results %>%
+  View()
+
+jlr_results %>%
+  View()
+
+mcp_results %>%
+  View()
+
+data <- bind_rows(jbc_results, jlr_results, mcp_results) #%>%
+  ggplot(mapping = aes(x = year_published, fill = journal)) +
+  geom_bar()
+```
+
+```{r}
+asbmb_pubs %>%
+  View()
+
+citations %>%
+  View()
+
+data %>%
+  View()
+
+data %>%
+  mutate(doi = tolower(doi)) %>%
+  left_join(
+    y = citations,
+    by = "doi"
+    ) %>%
+  group_by(journal, year_published) %>%
+  summarise(
+    antall = n(),
+    siteringer = sum(times_cited),
+    siteringssnitt= siteringer / antall
+    )
+```
+
